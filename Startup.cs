@@ -1,4 +1,5 @@
 using InventoryManagementWebAPI.Contexts;
+using InventoryManagementWebAPI.Repositories.Datas;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -51,6 +52,12 @@ namespace InventoryManagementWebAPI
                     }
                 });
             });
+
+            #region Dependency Injection
+
+            services.AddScoped<ItemRepository>();
+
+            #endregion Dependency Injection
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using InventoryManagementWebAPI.Contexts;
-using InventoryManagementWebAPI.Models;
 using InventoryManagementWebAPI.ViewModels;
+using InventoryManagementWebAPI.Repositories.Datas;
 
 namespace InventoryManagementWebAPI.Controllers
 {
@@ -12,18 +9,18 @@ namespace InventoryManagementWebAPI.Controllers
     [ApiController]
     public class ItemController : ControllerBase
     {
-        private readonly DBContext _context;
+        private readonly ItemRepository _itemRepository;
 
-        public ItemController(DBContext context)
+        public ItemController(ItemRepository itemRepository)
         {
-            _context = context;
+            _itemRepository = itemRepository;
         }
 
         // GET: api/Item
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Item>>> GetItem()
+        public async Task<ActionResult> GetItem()
         {
-            var item = await _context.Items.ToListAsync();
+            var item = await _itemRepository.GetItem();
             if (item.Count == 0)
                 return Ok(new { statusCode = 200, data = "null" });
 
@@ -32,9 +29,9 @@ namespace InventoryManagementWebAPI.Controllers
 
         // GET: api/Item/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Item>> GetItem(int id)
+        public async Task<ActionResult> GetItem(int id)
         {
-            var item = await _context.Items.FindAsync(id);
+            var item = await _itemRepository.GetItem(id);
             if (item == null)
                 return Ok(new { statusCode = 200, data = "null" });
 
@@ -45,22 +42,13 @@ namespace InventoryManagementWebAPI.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut]
-        public async Task<IActionResult> PutItem(ItemViewModel item)
+        public async Task<ActionResult> PutItem(ItemViewModel item)
         {
-            var itemData = await _context.Items.FindAsync(item.id);
+            var result = await _itemRepository.PutItem(item);
 
-            if (itemData == null)
+            if (result == 2)
                 return NotFound(new { statusCode = 404, message = "Data not found" });
-
-            itemData.code = item.code;
-            itemData.name = item.name;
-            itemData.available_quantity = item.available_quantity;
-            itemData.notes = item.notes;
-
-            _context.Items.Update(itemData);
-            var result = await _context.SaveChangesAsync();
-
-            if (result > 0)
+            else if (result == 1)
                 return Ok(new { statusCode = 200, message = "Success update data" });
 
             return BadRequest(new { statusCode = 400, message = "Failed update data" });
@@ -70,24 +58,13 @@ namespace InventoryManagementWebAPI.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Item>> PostItem(ItemViewModel item)
+        public async Task<ActionResult> PostItem(ItemViewModel item)
         {
-            var itemCode = await _context.Items.FindAsync(item.code);
+            var result = await _itemRepository.PostItem(item);
 
-            if (itemCode == null)
+            if (result == 2)
                 return BadRequest(new { statusCode = 400, message = "Failed create data" });
-
-            _context.Items.Add(new Item
-            {
-                code = item.code,
-                name = item.name,
-                available_quantity = item.available_quantity,
-                notes = item.notes
-            });
-
-            var result = await _context.SaveChangesAsync();
-
-            if (result > 0)
+            else if (result == 1)
                 return Ok(new { statusCode = 200, message = "Success create data" });
 
             return BadRequest(new { statusCode = 400, message = "Failed create data" });
@@ -95,17 +72,13 @@ namespace InventoryManagementWebAPI.Controllers
 
         // DELETE: api/Item/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Item>> DeleteItem(int id)
+        public async Task<ActionResult> DeleteItem(int id)
         {
-            var item = await _context.Items.FindAsync(id);
+            var result = await _itemRepository.DeleteItem(id);
 
-            if (item == null)
+            if (result == 2)
                 return NotFound(new { statusCode = 404, message = "Data not found" });
-
-            _context.Items.Remove(item);
-            var result = await _context.SaveChangesAsync();
-
-            if (result > 0)
+            else if (result == 1)
                 return Ok(new { statusCode = 200, message = "Success delete data" });
 
             return BadRequest(new { statusCode = 400, message = "Failed delete data" });
