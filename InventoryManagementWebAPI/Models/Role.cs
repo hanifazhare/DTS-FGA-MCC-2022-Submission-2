@@ -1,0 +1,12 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace InventoryManagementWebAPI.Models
+{
+    public class Role
+    {
+        [Key]
+        public int id { get; set; }
+
+        public string name { get; set; }
+    }
+}
