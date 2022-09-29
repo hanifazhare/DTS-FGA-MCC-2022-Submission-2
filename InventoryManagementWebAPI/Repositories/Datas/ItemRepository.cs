@@ -10,21 +10,21 @@ namespace InventoryManagementWebAPI.Repositories.Datas
 {
     public class ItemRepository : IItemRepository
     {
-        private readonly DBContext _context;
+        private readonly DBContext _dbContext;
 
-        public ItemRepository(DBContext context)
+        public ItemRepository(DBContext dbContext)
         {
-            _context = context;
+            _dbContext = dbContext;
         }
 
         public async Task<List<Item>> GetItem()
         {
-            return await _context.Items.ToListAsync();
+            return await _dbContext.Items.ToListAsync();
         }
 
         public async Task<Item> GetItem(int id)
         {
-            var itemData = await _context.Items.FindAsync(id);
+            var itemData = await _dbContext.Items.FindAsync(id);
             return itemData;
         }
 
@@ -46,8 +46,8 @@ namespace InventoryManagementWebAPI.Repositories.Datas
             getItemById.available_quantity = item.available_quantity;
             getItemById.notes = item.notes;
 
-            _context.Items.Update(getItemById);
-            result = await _context.SaveChangesAsync();
+            _dbContext.Items.Update(getItemById);
+            result = await _dbContext.SaveChangesAsync();
 
             return result;
         }
@@ -61,14 +61,14 @@ namespace InventoryManagementWebAPI.Repositories.Datas
             if (getItemByCode != null)
                 return result + 2;
 
-            _context.Items.Add(new Item
+            _dbContext.Items.Add(new Item
             {
                 code = item.code,
                 name = item.name,
                 available_quantity = item.available_quantity,
                 notes = item.notes
             });
-            result = await _context.SaveChangesAsync();
+            result = await _dbContext.SaveChangesAsync();
 
             return result;
         }
@@ -81,8 +81,8 @@ namespace InventoryManagementWebAPI.Repositories.Datas
             if (itemData == null)
                 return result + 2;
 
-            _context.Items.Remove(itemData);
-            result = await _context.SaveChangesAsync();
+            _dbContext.Items.Remove(itemData);
+            result = await _dbContext.SaveChangesAsync();
 
             return result;
         }
