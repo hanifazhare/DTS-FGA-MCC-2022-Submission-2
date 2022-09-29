@@ -28,6 +28,12 @@ namespace InventoryManagementWebClient
             services.AddControllersWithViews();
             services.AddDbContext<DBContext>(option =>
                 option.UseSqlServer(Configuration.GetConnectionString("DBConnection")));
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(5);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,11 +56,13 @@ namespace InventoryManagementWebClient
 
             app.UseAuthorization();
 
+            app.UseSession();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Item}/{action=Index}/{id?}");
+                    pattern: "{controller=Account}/{action=Login}/{id?}");
             });
         }
     }
